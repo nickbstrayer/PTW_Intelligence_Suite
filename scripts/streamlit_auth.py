@@ -1,1 +1,42 @@
-# Place your streamlit_auth.py here
+import streamlit as st
+
+# Simulated user database
+user_db = {
+    "admin": "password123",
+    "user@example.com": "welcome123"
+}
+
+def initialize_session_state():
+    if "is_authenticated" not in st.session_state:
+        st.session_state.is_authenticated = False
+    if "login_email" not in st.session_state:
+        st.session_state.login_email = ""
+    if "user_role" not in st.session_state:
+        st.session_state.user_role = "member"
+    if "page" not in st.session_state:
+        st.session_state.page = "landing"
+
+def render_auth_page():
+    mode = st.query_params.get("mode", "login")
+    st.markdown("### 🔐 PTW Intelligence Suite")
+
+    # Auth form UI
+    auth_mode = st.radio("Choose Option", ["Login", "Register"], index=0 if mode == "login" else 1)
+    email = st.text_input("Email")
+    password = st.text_input("Password", type="password")
+
+    if auth_mode == "Login":
+        if email in user_db and user_db[email] == password:
+            st.session_state.is_authenticated = True
+            st.session_state.login_email = email
+            st.session_state.page = "main"
+            st.success("Login successful!")
+            st.experimental_rerun()
+        elif st.button("Login"):
+            st.error("Invalid credentials.")
+    elif auth_mode == "Register":
+        if email in user_db:
+            st.warning("User already exists.")
+        elif st.button("Register"):
+            user_db[email] = password
+            st.success("User registered! Please log in.")
