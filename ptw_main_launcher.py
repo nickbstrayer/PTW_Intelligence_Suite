@@ -1,5 +1,5 @@
 import streamlit as st
-from Scripts.streamlit_auth import initialize_session_state, render_auth_page
+from scripts.streamlit_auth import initialize_session_state, render_auth_page
 
 # Initialize session state
 initialize_session_state()
