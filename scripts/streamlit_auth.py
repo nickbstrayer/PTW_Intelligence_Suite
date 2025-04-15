@@ -18,11 +18,10 @@ def initialize_session_state():
 
 def render_auth_page():
     mode = st.query_params.get("mode", "login")
-
     st.markdown("### 🔐 PTW Intelligence Suite")
 
-    # Auth form
     auth_mode = st.radio("Choose Option", ["Login", "Register"], index=0 if mode == "login" else 1)
+
     email = st.text_input("Email")
     password = st.text_input("Password", type="password")
 
@@ -33,9 +32,9 @@ def render_auth_page():
                 st.session_state.login_email = email
                 st.session_state.user_role = "admin" if email == "admin" else "member"
                 st.success("Login successful!")
-                st.rerun()  # <-- updated here
+                st.rerun()
             else:
-                st.error("Invalid email or password.")
+                st.error("Invalid credentials.")
     else:
         if st.button("Register"):
             if email in user_db:
