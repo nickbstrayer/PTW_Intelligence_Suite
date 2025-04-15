@@ -1,26 +1,36 @@
+# pages/salary_estimator.py
+
 import streamlit as st
-import joblib
 import pandas as pd
+import joblib
+import os
 
 def render():
-    st.header("📥 Salary Estimator")
-    st.write("Estimate salary based on role, education, location, and experience.")
+    st.markdown("## 💰 Salary Estimator")
+    st.markdown("Estimate salary based on role, education, location, and experience.")
 
-    model = joblib.load("salary_estimator_model.pkl")
+    # UI for input
+    role = st.selectbox("Select Role", ["Data Analyst", "Software Engineer", "Project Manager", "Cybersecurity Specialist"])
+    education = st.selectbox("Education Level", ["High School", "Associate", "Bachelor", "Master", "PhD"])
+    location = st.selectbox("Location", ["Washington, DC", "New York, NY", "Austin, TX", "Remote"])
+    years_exp = st.slider("Years of Experience", 0, 40, 5)
 
-    job_title = st.selectbox("Job Title", ["Logistics Analyst IV", "Program Manager", "Administrative Assistant"])
-    education = st.selectbox("Education", ["High School", "Associate's", "Bachelor's"])
-    experience = st.slider("Experience (years)", 0, 30, 5)
-    clearance = st.selectbox("Clearance", ["None", "Secret"])
-    location = st.selectbox("Location", ["Fort Detrick, MD", "Remote", "Germany"])
+    # Build input dataframe
+    input_data = pd.DataFrame([{
+        "role": role,
+        "education": education,
+        "location": location,
+        "years_exp": years_exp
+    }])
 
-    if st.button("Estimate Salary"):
-        input_df = pd.DataFrame([{
-            "Job Title": job_title,
-            "Education Requirement": education,
-            "Years of Experience": experience,
-            "Clearance Required": clearance,
-            "Location": location
-        }])
-        prediction = model.predict(input_df)[0]
-        st.success(f"Estimated Salary: ${prediction:,.2f}")
+    # Load model
+    model_path = os.path.join("models", "salary_estimator_model.pkl")
+    try:
+        model = joblib.load(model_path)
+        prediction = model.predict(input_data)[0]
+
+        st.success(f"💵 Estimated Salary: **${prediction:,.0f}** per year")
+    except FileNotFoundError:
+        st.error(f"❌ Could not find model file at: `{model_path}`")
+    except Exception as e:
+        st.error(f"❌ Error during prediction: {e}")
