@@ -1,18 +1,18 @@
-import sys
-import os
 import streamlit as st
+import importlib.util
+import os
 
-# Ensure the 'scripts' folder is included in Python path
-sys.path.append(os.path.join(os.path.dirname(__file__), 'scripts'))
+# Dynamically load streamlit_auth from scripts/streamlit_auth.py
+auth_path = os.path.join(os.path.dirname(__file__), "scripts", "streamlit_auth.py")
+spec = importlib.util.spec_from_file_location("streamlit_auth", auth_path)
+auth_module = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(auth_module)
 
-from streamlit_auth import initialize_session_state, render_auth_page
+# Call authentication functions
+auth_module.initialize_session_state()
 
-# Initialize user session
-initialize_session_state()
-
-# 🚪 Authentication Gate
 if not st.session_state.get("is_authenticated"):
-    render_auth_page()
+    auth_module.render_auth_page()
 
 else:
     # Sidebar navigation
