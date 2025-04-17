@@ -1,36 +1,43 @@
-import streamlit as st
 import spacy
+import streamlit as st
 from PyPDF2 import PdfReader
+import os
 
 @st.cache_resource
 def load_model():
-    return spacy.load("en_core_web_sm")
+    try:
+        # Try loading the model directly
+        return spacy.load("en_core_web_sm")
+    except OSError:
+        # Automatically download if not available
+        from spacy.cli import download
+        download("en_core_web_sm")
+        return spacy.load("en_core_web_sm")
 
-def extract_text(uploaded_file):
+def extract_text_from_pdf(uploaded_file):
     reader = PdfReader(uploaded_file)
-    return "".join(page.extract_text() or "" for page in reader.pages)
+    text = ""
+    for page in reader.pages:
+        text += page.extract_text() + "\n"
+    return text
 
-def classify_text(text):
-    intensity_keywords = ["lead", "manage", "coordinate", "complex", "strategic"]
-    unique_keywords = ["clearance", "cyber", "deployment", "language", "clinical"]
+def classify_text(text, nlp):
+    doc = nlp(text)
+    # Example logic: count token length or keyword matches to assign "intensity"
+    token_count = len(doc)
+    if token_count > 1200:
+        intensity = "High"
+    elif token_count > 600:
+        intensity = "Medium"
+    else:
+        intensity = "Low"
 
-    intensity_score = sum(word in text.lower() for word in intensity_keywords)
-    unique_score = sum(word in text.lower() for word in unique_keywords)
+    # Dummy uniqueness measure: count distinct nouns
+    nouns = [token.text.lower() for token in doc if token.pos_ == "NOUN"]
+    unique_nouns = len(set(nouns))
 
-    intensity = "High" if intensity_score >= 4 else "Medium" if intensity_score >= 2 else "Low"
-    unique = "Yes" if unique_score >= 1 else "No"
-
-    return intensity, unique
-
-def render():
-    st.header("🤖 AI Job Classifier")
-    st.write("Upload a job description or resume to predict job intensity and uniqueness.")
-
-    uploaded = st.file_uploader("Upload PDF file", type="pdf")
-    if uploaded:
-        nlp = load_model()
-        text = extract_text(uploaded)
-        intensity, unique = classify_text(text)
-        st.success(f"Job Intensity: {intensity} | Specialized Requirement: {unique}")
-        with st.expander("Show Extracted Text"):
-            st.text(text[:2000])
+    return {
+        "intensity": intensity,
+        "unique_noun_count": unique_nouns,
+        "token_count": token_count
+    }
