@@ -1,8 +1,6 @@
 streamlit
-pandas
-numpy
-matplotlib
-joblib
+spacy>=3.0.0
 PyPDF2
-spacy
-scikit-learn
+
+# Explicit spaCy model download (adjust version if needed)
+en_core_web_sm @ https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.7.1/en_core_web_sm-3.7.1.tar.gz
