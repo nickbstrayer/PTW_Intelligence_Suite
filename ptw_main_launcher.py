@@ -1,48 +1,30 @@
 import streamlit as st
-import importlib.util
-import os
+from pages import ptw_calculator, salary_estimator, visual_dashboard, job_classifier
+from pages import ptw_calculator_full  # ✅ Make sure this is imported
 
-# Dynamically load streamlit_auth from scripts/streamlit_auth.py
-auth_path = os.path.join(os.path.dirname(__file__), "scripts", "streamlit_auth.py")
-spec = importlib.util.spec_from_file_location("streamlit_auth", auth_path)
-auth_module = importlib.util.module_from_spec(spec)
-spec.loader.exec_module(auth_module)
+st.set_page_config(page_title="PTW Intelligence Suite", layout="wide")
 
-# Call authentication functions
-auth_module.initialize_session_state()
+# Sidebar Navigation
+st.sidebar.markdown("### 🧭 PTW Intelligence Suite")
+page = st.sidebar.radio("Navigate to:", [
+    "🏠 Home", 
+    "📊 PTW Calculator", 
+    "📈 Salary Estimator",
+    "🤖 AI Job Classifier",
+    "📊 Visual Summary Dashboard"
+])
 
-if not st.session_state.get("is_authenticated"):
-    auth_module.render_auth_page()
-
-else:
-    # Sidebar navigation
-    st.sidebar.title("🔐 PTW Intelligence Suite")
-    selection = st.sidebar.radio("Navigate to:", [
-        "🏠 Home",
-        "🧮 PTW Calculator",
-        "📥 Salary Estimator",
-        "🤖 AI Job Classifier",
-        "📊 Visual Summary Dashboard"
-    ])
-
-    # Load appropriate tool
-    if selection == "🏠 Home":
-        st.title("🏠 Welcome to the PTW Intelligence Suite")
-        st.markdown("This tool helps you analyze, simulate, and optimize contract pricing strategies.")
-        st.success(f"You are logged in as **{st.session_state.login_email}**")
-
-    elif selection == "🧮 PTW Calculator":
-        import pages.ptw_calculator as ptw
-        ptw.render()
-
-    elif selection == "📥 Salary Estimator":
-        import pages.salary_estimator as salary
-        salary.render()
-
-    elif selection == "🤖 AI Job Classifier":
-        import pages.job_classifier as classifier
-        classifier.render()
-
-    elif selection == "📊 Visual Summary Dashboard":
-        import pages.visual_dashboard as dashboard
-        dashboard.render()
+# Render selected page
+if page == "🏠 Home":
+    st.title("🏠 Welcome to the PTW Intelligence Suite")
+    st.markdown("Use the navigation panel to access each module.")
+elif page == "📊 PTW Calculator":
+    ptw_calculator.render()
+elif page == "📈 Salary Estimator":
+    salary_estimator.render()
+elif page == "🤖 AI Job Classifier":
+    job_classifier.render()
+elif page == "📊 Visual Summary Dashboard":
+    visual_dashboard.render()
+elif page == "PTW Calculator – Full":
+    ptw_calculator_full.render_ptw_calculator()  # ✅ Connects to new full module
