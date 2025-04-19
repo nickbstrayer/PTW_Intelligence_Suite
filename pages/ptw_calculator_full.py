@@ -1,97 +1,45 @@
 import streamlit as st
-import pandas as pd
-import numpy as np
-import requests
-import json
+from scripts.api_connectors import fetch_sam_details
 
-def render_ptw_calculator():
-    st.markdown("## 🔢 Full PTW Calculator")
+st.set_page_config(page_title="PTW Calculator – Full", layout="wide")
 
-    with st.form("ptw_form"):
-        st.subheader("Agency and Contract Info")
-        agency = st.text_input("Agency Name or Sub-agency")
-        contract_title = st.text_input("Contract Title")
-        solicitation_number = st.text_input("Solicitation Number")
-        contract_value = st.number_input("Contract Estimated Value ($)", step=1000.0)
-        contract_type = st.selectbox("Contract Type", ["Full & Open", "SDVOSB", "WOSB", "HubZone", "ANC", "Other"])
+st.markdown("""
+    <h1 style='display: flex; align-items: center;'>
+        <span style='font-size: 32px; margin-right: 10px;'>🔢</span> Full PTW Calculator
+    </h1>
+""", unsafe_allow_html=True)
 
-        st.subheader("Labor Info")
-        labor_category = st.selectbox("Labor Category", ["Program Manager", "Analyst", "Engineer", "Support Staff"])
-        base_salary = st.number_input("Base Salary Estimate ($)", step=1000.0)
-        bill_low = st.number_input("Bill Rate - Low ($)", step=100.0)
-        bill_mid = st.number_input("Bill Rate - Mid ($)", step=100.0)
-        bill_high = st.number_input("Bill Rate - High ($)", step=100.0)
+st.markdown("---")
 
-        st.subheader("Contracting Context")
-        eval_category = st.selectbox("Evaluation Category", ["Best Value", "LPTA", "Undefined"])
-        pricing_scenario = st.selectbox("Pricing Scenario", ["New Requirement", "Recompete"])
+# --- Form Section 1: Agency and Contract Info ---
+st.subheader("Agency and Contract Info")
 
-        st.subheader("Modifiers")
-        job_intensity = st.selectbox("Job Description Intensity", ["High", "Medium", "Low", "Unknown"])
-        specialized = st.selectbox("Specialized Requirement?", ["Yes", "No"])
-        political_modifier = st.selectbox("Political Trend Modifier", ["Expansionary (+3%)", "Neutral (0%)", "Contractionary (-3%)"])
+with st.form("sam_lookup"):
+    solicitation_number = st.text_input("Solicitation Number", key="sam_lookup_input")
+    fetch_button = st.form_submit_button("🔍 Pull from SAM.gov")
 
-        st.subheader("Benchmarking")
-        historical_value = st.number_input("Historical Contract Value (if any) ($)", step=1000.0)
-        gsa_benchmark = st.number_input("Comparable Rate Benchmark (GSA, etc.) ($)", step=10.0)
+if fetch_button and solicitation_number:
+    sam_data = fetch_sam_details(solicitation_number)
+    agency_name = sam_data.get("agency_name", "")
+    contract_title = sam_data.get("title", "")
+else:
+    agency_name = ""
+    contract_title = ""
 
-        submitted = st.form_submit_button("Calculate PTW")
+agency_name = st.text_input("Agency Name or Sub-agency", value=agency_name, key="agency_input")
+contract_title = st.text_input("Contract Title", value=contract_title, key="title_input")
+st.text_input("Solicitation Number", value=solicitation_number, key="sol_number_final")
+contract_value = st.number_input("Contract Estimated Value ($)", min_value=0.0, format="%.2f")
+contract_type = st.selectbox("Contract Type", ["Full & Open", "SDVOSB", "WOSB", "HubZone", "ANC", "Other"])
 
-    if submitted:
-        st.subheader("Computed Results")
-        def modifier_factor(intensity, specialized, politics):
-            factor = 1.0
-            if intensity == "High":
-                factor += 0.05
-            elif intensity == "Low":
-                factor -= 0.03
+# --- Form Section 2: Labor Info ---
+st.subheader("Labor Info")
+labor_category = st.selectbox("Labor Category", ["Program Manager", "Analyst", "Engineer", "Administrator", "Other"])
+base_salary = st.number_input("Base Salary Estimate ($)", min_value=0.0, format="%.2f")
+bill_low = st.number_input("Bill Rate – Low ($)", min_value=0.0, format="%.2f")
+bill_mid = st.number_input("Bill Rate – Mid ($)", min_value=0.0, format="%.2f")
+bill_high = st.number_input("Bill Rate – High ($)", min_value=0.0, format="%.2f")
 
-            if specialized == "Yes":
-                factor += 0.04
+# (Continue to add additional sections below)
 
-            if "Expansionary" in politics:
-                factor += 0.03
-            elif "Contractionary" in politics:
-                factor -= 0.03
-
-            return factor
-
-        mod = modifier_factor(job_intensity, specialized, political_modifier)
-
-        adj_low = round(bill_low * mod, 2)
-        adj_mid = round(bill_mid * mod, 2)
-        adj_high = round(bill_high * mod, 2)
-
-        if gsa_benchmark > 0:
-            variance = round(((bill_mid - gsa_benchmark) / gsa_benchmark) * 100, 2)
-        else:
-            variance = "N/A"
-
-        def win_prob(rate, benchmark):
-            if benchmark <= 0:
-                return 0.0
-            diff = rate - benchmark
-            prob = 100 - (diff / benchmark * 100)
-            return max(min(round(prob, 2), 100), 0)
-
-        win_low = win_prob(adj_low, gsa_benchmark)
-        win_mid = win_prob(adj_mid, gsa_benchmark)
-        win_high = win_prob(adj_high, gsa_benchmark)
-
-        best_rate = adj_low if win_low >= win_mid and win_low >= win_high else (
-            adj_mid if win_mid >= win_high else adj_high)
-        best_win = max(win_low, win_mid, win_high)
-
-        st.metric("Adjusted Rate - Low", f"${adj_low}")
-        st.metric("Adjusted Rate - Mid", f"${adj_mid}")
-        st.metric("Adjusted Rate - High", f"${adj_high}")
-
-        st.metric("Win Probability - Low", f"{win_low}%")
-        st.metric("Win Probability - Mid", f"{win_mid}%")
-        st.metric("Win Probability - High", f"{win_high}%")
-
-        st.success(f"Recommended PTW Rate: ${best_rate} with {best_win}% chance to win")
-
-        st.markdown("### Justification Notes")
-        st.write(f"Rate adjusted using {job_intensity} job intensity, {'specialized' if specialized == 'Yes' else 'non-specialized'} role, and a {political_modifier} market.")
-        st.write(f"Variance from benchmark: {variance if variance != 'N/A' else 'Not available'}%")
+# You can add st.button("Submit") or more advanced logic later
