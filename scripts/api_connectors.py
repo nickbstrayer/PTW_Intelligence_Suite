@@ -1,53 +1,51 @@
 import requests
 import os
 
-SAM_API_KEY = os.getenv("SAM_API_KEY", "your-sam-api-key-here")
-DATA_GOV_KEY = os.getenv("DATA_GOV_KEY", "your-data-gov-key-here")
+# You can hardcode keys for now or pull them from environment variables
+SAM_API_KEY = "f2gGlBlN4L8Q9HzeXyHHTvvNwkvz3m7OIxhFMDhu"
+DATA_GOV_KEY = "MTcYHhfTdFCtXwczxk3gEnS4tpuvumTbfxNtsf5I"
 
 def fetch_sam_details(solicitation_number):
-    url = f"https://api.sam.gov/opportunities/v2/search"
+    url = "https://api.sam.gov/prod/opportunities/v2/search"
     params = {
         "api_key": SAM_API_KEY,
-        "noticeId": solicitation_number,
+        "q": solicitation_number,
+        "limit": 1
     }
     try:
         response = requests.get(url, params=params)
         response.raise_for_status()
-        data = response.json()
+        results = response.json()
 
-        if data.get("opportunitiesData"):
-            item = data["opportunitiesData"][0]
+        if results.get("opportunities"):
+            opp = results["opportunities"][0]
             return {
-                "agency": item.get("contractingOfficeName", ""),
-                "title": item.get("title", "")
+                "agency_name": opp.get("contractingOfficeName", ""),
+                "title": opp.get("title", "")
             }
-        else:
-            return {"agency": "", "title": ""}
-
     except Exception as e:
-        print(f"SAM.gov API error: {e}")
-        return {"agency": "", "title": ""}
+        print(f"SAM.gov fetch error: {e}")
+    return {"agency_name": "", "title": ""}
 
-
-def fetch_contract_history(agency_name):
+def fetch_contract_history(duns_or_uei):
     url = "https://api.usaspending.gov/api/v2/search/spending_by_award/"
     headers = {"Content-Type": "application/json"}
-    body = {
+    payload = {
         "filters": {
-            "agencies": [{"name": agency_name}]
+            "recipient_search_text": [duns_or_uei]
         },
-        "fields": ["Award Amount", "Recipient Name", "Awarding Agency", "Action Date"],
+        "fields": ["Award Amount", "Recipient Name", "Award ID", "Action Date"],
         "limit": 1
     }
-
     try:
-        response = requests.post(url, headers=headers, json=body)
+        response = requests.post(url, headers=headers, json=payload)
         response.raise_for_status()
-        result = response.json()
-        if result["results"]:
-            return result["results"][0]
-        return {}
-
+        data = response.json()
+        if data.get("results"):
+            contract = data["results"][0]
+            return {
+                "historical_value": contract.get("Award Amount", 0.0)
+            }
     except Exception as e:
-        print(f"Data.gov API error: {e}")
-        return {}
+        print(f"Data.gov fetch error: {e}")
+    return {"historical_value": 0.0}
