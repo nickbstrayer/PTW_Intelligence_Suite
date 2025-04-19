@@ -1,35 +1,34 @@
 import streamlit as st
-from pages import ptw_calculator, ptw_calculator_full, salary_estimator, visual_dashboard
+from pages import ptw_calculator, salary_estimator, visual_dashboard, job_classifier
+from pages.ptw_calculator_full import render_ptw_calculator
 
-st.set_page_config(page_title="PTW Intelligence Suite", layout="wide")
-
-st.sidebar.title("🛡️ PTW Intelligence Suite")
-page = st.sidebar.radio("Navigate to:", (
+# Sidebar navigation
+st.sidebar.title("🔰 PTW Intelligence Suite")
+page = st.sidebar.radio("Navigate to:", [
     "🏠 Home",
     "📊 PTW Calculator",
-    "📉 PTW Calculator – Full",
+    "🧮 PTW Calculator – Full",
     "💰 Salary Estimator",
     "🤖 AI Job Classifier",
     "📊 Visual Summary Dashboard"
-))
+])
 
+# Route to selected page
 if page == "🏠 Home":
-    st.markdown("""
-        <h1 style='text-align: center;'>PTW Intelligence Suite</h1>
-        <p style='text-align: center;'>Use the sidebar to navigate between modules for price-to-win analysis, salary benchmarking, and job classification.</p>
-    """, unsafe_allow_html=True)
+    st.title("Welcome to PTW Intelligence Suite")
+    st.markdown("Use the navigation menu to access different modules for labor pricing, classification, dashboards, and more.")
 
 elif page == "📊 PTW Calculator":
-    ptw_calculator.render_ptw_calculator()
+    ptw_calculator.main()
 
-elif page == "📉 PTW Calculator – Full":
-    ptw_calculator_full.render_ptw_calculator()
+elif page == "🧮 PTW Calculator – Full":
+    render_ptw_calculator()
 
 elif page == "💰 Salary Estimator":
-    salary_estimator.render_salary_estimator()
+    salary_estimator.main()
 
 elif page == "🤖 AI Job Classifier":
-    st.warning("AI Job Classifier is not yet implemented.")
+    job_classifier.main()
 
 elif page == "📊 Visual Summary Dashboard":
-    visual_dashboard.render_dashboard()
+    visual_dashboard.main()
