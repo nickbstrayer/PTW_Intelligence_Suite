@@ -23,20 +23,41 @@ def render_ptw_calculator():
         sam_data = fetch_sam_details(solicitation_number)
         agency_name = sam_data.get("agency_name", "")
         contract_title = sam_data.get("title", "")
+        published_date = sam_data.get("published_date", "")
+        due_date = sam_data.get("due_date", "")
+        competition = sam_data.get("competition", "")
+        estimated_value = sam_data.get("estimated_value", 0.0)
+        set_aside = sam_data.get("set_aside", "")
+        psc = sam_data.get("psc", "")
+        naics = sam_data.get("naics", "")
+        pop = sam_data.get("pop", "")
+        description = sam_data.get("description", "")
     else:
         agency_name = ""
         contract_title = ""
+        published_date = ""
+        due_date = ""
+        competition = ""
+        estimated_value = 0.0
+        set_aside = ""
+        psc = ""
+        naics = ""
+        pop = ""
+        description = ""
 
     agency_name = st.text_input("Agency Name or Sub-agency", value=agency_name, key="agency_input")
     contract_title = st.text_input("Contract Title", value=contract_title, key="title_input")
     st.text_input("Solicitation Number", value=solicitation_number, key="sol_number_final")
-    contract_value = st.number_input("Contract Estimated Value ($)", min_value=0.0, format="%.2f")
-    contract_type = st.selectbox(
-        "Contract Type",
-        ["Full & Open", "Small Business Set Aside", "SDVOSB", "WOSB", "HubZone", "ANC", "Other"]
-    )
+    st.text_input("Published Date", value=published_date, key="published_input")
+    st.text_input("Due Date", value=due_date, key="due_input")
+    st.text_input("Competition Type", value=competition, key="competition_input")
+    contract_value = st.number_input("Contract Estimated Value ($)", value=estimated_value, min_value=0.0, format="%.2f")
+    st.text_input("Set-Aside Type", value=set_aside, key="setaside_input")
+    st.text_input("Product Service Code (PSC)", value=psc, key="psc_input")
+    st.text_input("NAICS Code", value=naics, key="naics_input")
+    st.text_input("Place of Performance", value=pop, key="pop_input")
+    st.text_area("Description", value=description, key="description_input")
 
-    # --- Section 2: Labor Info ---
     st.markdown("### 📌 Labor Info")
     labor_category = st.selectbox("Labor Category", ["Program Manager", "Analyst", "Engineer", "Administrator", "Other"])
     base_salary = st.number_input("Base Salary Estimate ($)", min_value=0.0, format="%.2f")
@@ -44,25 +65,7 @@ def render_ptw_calculator():
     bill_mid = st.number_input("Bill Rate – Mid ($)", min_value=0.0, format="%.2f")
     bill_high = st.number_input("Bill Rate – High ($)", min_value=0.0, format="%.2f")
 
-    # --- Section 3: Contracting Context ---
-    st.markdown("### 📁 Contracting Context")
-
-    evaluation_category = st.selectbox(
-        "Evaluation Category",
-        ["Best Value", "Lowest Price Technically Acceptable (LPTA)", "Tradeoff", "Other"]
-    )
-
-    pricing_scenario = st.selectbox(
-        "Pricing Scenario",
-        ["New Requirement", "Incumbent Contractor", "Follow-on / Recompete", "Bridge / Extension", "Other"]
-    )
-
-    job_description_intensity = st.selectbox(
-        "Job Description Intensity",
-        ["Low", "Medium", "High", "Unknown"]
-    )
-
-    st.success("Contracting context loaded successfully.")
+    st.success("Section loaded successfully – more sections will appear as we continue integration.")
 
 # IMPORTANT: Add this call to render the page when loaded directly
 render_ptw_calculator()
