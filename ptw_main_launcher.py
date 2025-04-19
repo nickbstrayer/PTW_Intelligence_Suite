@@ -1,6 +1,6 @@
 import streamlit as st
 from pages import ptw_calculator, salary_estimator, visual_dashboard, job_classifier
-from pages import ptw_calculator_full  # ✅ Make sure this is imported
+from pages import ptw_calculator_full  # ✅ This connects the full PTW calculator
 
 st.set_page_config(page_title="PTW Intelligence Suite", layout="wide")
 
@@ -11,10 +11,11 @@ page = st.sidebar.radio("Navigate to:", [
     "📊 PTW Calculator", 
     "📈 Salary Estimator",
     "🤖 AI Job Classifier",
-    "📊 Visual Summary Dashboard"
+    "📊 Visual Summary Dashboard",
+    "PTW Calculator – Full"  # ✅ Make sure this is in the list
 ])
 
-# Render selected page
+# Page Routing
 if page == "🏠 Home":
     st.title("🏠 Welcome to the PTW Intelligence Suite")
     st.markdown("Use the navigation panel to access each module.")
@@ -27,4 +28,4 @@ elif page == "🤖 AI Job Classifier":
 elif page == "📊 Visual Summary Dashboard":
     visual_dashboard.render()
 elif page == "PTW Calculator – Full":
-    ptw_calculator_full.render_ptw_calculator()  # ✅ Connects to new full module
+    ptw_calculator_full.render_ptw_calculator()  # ✅ This renders the full version
