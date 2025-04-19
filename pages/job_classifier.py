@@ -1,43 +1,30 @@
-import spacy
 import streamlit as st
-from PyPDF2 import PdfReader
-import os
 
-@st.cache_resource
-def load_model():
-    try:
-        # Try loading the model directly
-        return spacy.load("en_core_web_sm")
-    except OSError:
-        # Automatically download if not available
-        from spacy.cli import download
-        download("en_core_web_sm")
-        return spacy.load("en_core_web_sm")
+try:
+    import spacy
+    nlp = spacy.load("en_core_web_sm")  # Make sure this model is added in requirements.txt
+except Exception as e:
+    st.error(f"Failed to load spaCy model: {e}")
+    nlp = None
 
-def extract_text_from_pdf(uploaded_file):
-    reader = PdfReader(uploaded_file)
-    text = ""
-    for page in reader.pages:
-        text += page.extract_text() + "\n"
-    return text
+def render_job_classifier():
+    st.title("🤖 AI Job Classifier")
 
-def classify_text(text, nlp):
-    doc = nlp(text)
-    # Example logic: count token length or keyword matches to assign "intensity"
-    token_count = len(doc)
-    if token_count > 1200:
-        intensity = "High"
-    elif token_count > 600:
-        intensity = "Medium"
-    else:
-        intensity = "Low"
+    st.markdown("Paste a job description below to classify it using AI NLP:")
+    job_text = st.text_area("Job Description")
 
-    # Dummy uniqueness measure: count distinct nouns
-    nouns = [token.text.lower() for token in doc if token.pos_ == "NOUN"]
-    unique_nouns = len(set(nouns))
+    if st.button("🔍 Classify Job"):
+        if not nlp:
+            st.error("spaCy model is not loaded. Please check setup.")
+            return
 
-    return {
-        "intensity": intensity,
-        "unique_noun_count": unique_nouns,
-        "token_count": token_count
-    }
+        doc = nlp(job_text)
+        ents = [(ent.text, ent.label_) for ent in doc.ents]
+
+        if ents:
+            st.markdown("### 🔍 Extracted Entities:")
+            for text, label in ents:
+                st.markdown(f"- **{label}**: {text}")
+        else:
+            st.info("No recognizable entities found.")
+
