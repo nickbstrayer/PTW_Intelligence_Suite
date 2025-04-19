@@ -30,7 +30,12 @@ agency_name = st.text_input("Agency Name or Sub-agency", value=agency_name, key=
 contract_title = st.text_input("Contract Title", value=contract_title, key="title_input")
 st.text_input("Solicitation Number", value=solicitation_number, key="sol_number_final")
 contract_value = st.number_input("Contract Estimated Value ($)", min_value=0.0, format="%.2f")
-contract_type = st.selectbox("Contract Type", ["Full & Open", "SDVOSB", "WOSB", "HubZone", "ANC", "Other"])
+
+# ✅ Updated with Small Business Set Aside option
+contract_type = st.selectbox(
+    "Contract Type", 
+    ["Full & Open", "Small Business Set Aside", "SDVOSB", "WOSB", "HubZone", "ANC", "Other"]
+)
 
 # --- Section 2: Labor Info ---
 st.subheader("Labor Info")
