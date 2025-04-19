@@ -1,31 +1,47 @@
 import streamlit as st
-from pages import ptw_calculator, salary_estimator, visual_dashboard, job_classifier
-from pages import ptw_calculator_full  # ✅ This connects the full PTW calculator
+from pages import ptw_calculator, ptw_calculator_full, salary_estimator, visual_dashboard
 
-st.set_page_config(page_title="PTW Intelligence Suite", layout="wide")
+st.set_page_config(
+    page_title="PTW Intelligence Suite",
+    page_icon="🧠",
+    layout="wide"
+)
 
-# Sidebar Navigation
-st.sidebar.markdown("### 🧭 PTW Intelligence Suite")
-page = st.sidebar.radio("Navigate to:", [
-    "🏠 Home", 
-    "📊 PTW Calculator", 
-    "📈 Salary Estimator",
-    "🤖 AI Job Classifier",
-    "📊 Visual Summary Dashboard",
-    "PTW Calculator – Full"  # ✅ Make sure this is in the list
-])
+# Sidebar
+with st.sidebar:
+    st.markdown("### 🔐 PTW Intelligence Suite")
+    st.radio("Navigate to:", [
+        "🏠 Home",
+        "📊 PTW Calculator",
+        "📈 PTW Calculator – Full",
+        "💰 Salary Estimator",
+        # "🤖 AI Job Classifier",  # ← DISABLED to avoid spaCy crash
+        "📊 Visual Summary Dashboard"
+    ], key="page_selector")
 
-# Page Routing
+# Main Page Routing
+page = st.session_state.page_selector
+
 if page == "🏠 Home":
-    st.title("🏠 Welcome to the PTW Intelligence Suite")
-    st.markdown("Use the navigation panel to access each module.")
+    st.markdown("## 🧠 PTW Intelligence Suite")
+    st.write("""
+        This suite provides government contractors and pricing teams with data-driven tools 
+        to estimate competitive labor rates, understand win probabilities, and generate 
+        justifications to support pricing strategies.
+    """)
+    st.info("Select a tool from the left to begin.")
+
 elif page == "📊 PTW Calculator":
     ptw_calculator.render()
-elif page == "📈 Salary Estimator":
+
+elif page == "📈 PTW Calculator – Full":
+    ptw_calculator_full.render_ptw_calculator()
+
+elif page == "💰 Salary Estimator":
     salary_estimator.render()
-elif page == "🤖 AI Job Classifier":
-    job_classifier.render()
+
+# elif page == "🤖 AI Job Classifier":
+#     job_classifier.render()  # ← DISABLED due to spaCy incompatibility
+
 elif page == "📊 Visual Summary Dashboard":
     visual_dashboard.render()
-elif page == "PTW Calculator – Full":
-    ptw_calculator_full.render_ptw_calculator()  # ✅ This renders the full version
