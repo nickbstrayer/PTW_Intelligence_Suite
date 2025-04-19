@@ -15,9 +15,6 @@ def render_ptw_calculator():
     # --- Form Section 1: Agency and Contract Info ---
     st.subheader("Agency and Contract Info")
 
-    # Safe default if form is not submitted
-    solicitation_number = ""
-
     with st.form("sam_lookup"):
         solicitation_number = st.text_input("Solicitation Number", key="sam_lookup_input")
         fetch_button = st.form_submit_button("🔍 Pull from SAM.gov")
@@ -33,13 +30,13 @@ def render_ptw_calculator():
     agency_name = st.text_input("Agency Name or Sub-agency", value=agency_name, key="agency_input")
     contract_title = st.text_input("Contract Title", value=contract_title, key="title_input")
     st.text_input("Solicitation Number", value=solicitation_number, key="sol_number_final")
-    contract_value = st.number_input("Contract Estimated Value ($)", min_value=0.0, format="%.2f")
+    contract_value = st.number_input("Estimated Contract Value ($)", min_value=0.0, format="%.2f")
     contract_type = st.selectbox(
         "Contract Type",
         ["Full & Open", "Small Business Set Aside", "SDVOSB", "WOSB", "HubZone", "ANC", "Other"]
     )
 
-    # --- Form Section 2: Labor Info ---
+    # --- Section 2: Labor Info ---
     st.markdown("### 📌 Labor Info")
     labor_category = st.selectbox("Labor Category", ["Program Manager", "Analyst", "Engineer", "Administrator", "Other"])
     base_salary = st.number_input("Base Salary Estimate ($)", min_value=0.0, format="%.2f")
@@ -47,8 +44,4 @@ def render_ptw_calculator():
     bill_mid = st.number_input("Bill Rate – Mid ($)", min_value=0.0, format="%.2f")
     bill_high = st.number_input("Bill Rate – High ($)", min_value=0.0, format="%.2f")
 
-    # Placeholder for next sections
     st.success("Section loaded successfully – more sections will appear as we continue integration.")
-
-# 🔁 Trigger the render function on load
-render_ptw_calculator()
