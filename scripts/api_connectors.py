@@ -19,13 +19,29 @@ def fetch_sam_details(solicitation_number):
 
         if results.get("opportunities"):
             opp = results["opportunities"][0]
+            general = opp.get("generalInfo", {})
+            classification = opp.get("classification", {})
             return {
                 "agency_name": opp.get("contractingOfficeName", ""),
-                "title": opp.get("title", "")
+                "title": opp.get("title", ""),
+                "published_date": general.get("updatedPublishedDate", ""),
+                "due_date": general.get("updatedResponseDeadline", ""),
+                "competition": general.get("contractOpportunityType", ""),
+                "value": opp.get("estimatedValue", ""),
+                "set_aside": classification.get("originalSetAside", ""),
+                "psc": classification.get("productServiceCode", ""),
+                "naics": classification.get("naicsCode", ""),
+                "location": opp.get("placeOfPerformance", {}).get("location", "USA"),
+                "description": opp.get("description", "")
             }
     except Exception as e:
         print(f"SAM.gov fetch error: {e}")
-    return {"agency_name": "", "title": ""}
+    return {
+        "agency_name": "", "title": "", "published_date": "",
+        "due_date": "", "competition": "", "value": "",
+        "set_aside": "", "psc": "", "naics": "",
+        "location": "", "description": ""
+    }
 
 def fetch_contract_history(duns_or_uei):
     url = "https://api.usaspending.gov/api/v2/search/spending_by_award/"
