@@ -30,7 +30,7 @@ def render_ptw_calculator():
     agency_name = st.text_input("Agency Name or Sub-agency", value=agency_name, key="agency_input")
     contract_title = st.text_input("Contract Title", value=contract_title, key="title_input")
     st.text_input("Solicitation Number", value=solicitation_number, key="sol_number_final")
-    contract_value = st.number_input("Estimated Contract Value ($)", min_value=0.0, format="%.2f")
+    contract_value = st.number_input("Contract Estimated Value ($)", min_value=0.0, format="%.2f")
     contract_type = st.selectbox(
         "Contract Type",
         ["Full & Open", "Small Business Set Aside", "SDVOSB", "WOSB", "HubZone", "ANC", "Other"]
@@ -44,4 +44,25 @@ def render_ptw_calculator():
     bill_mid = st.number_input("Bill Rate – Mid ($)", min_value=0.0, format="%.2f")
     bill_high = st.number_input("Bill Rate – High ($)", min_value=0.0, format="%.2f")
 
-    st.success("Section loaded successfully – more sections will appear as we continue integration.")
+    # --- Section 3: Contracting Context ---
+    st.markdown("### 📁 Contracting Context")
+
+    evaluation_category = st.selectbox(
+        "Evaluation Category",
+        ["Best Value", "Lowest Price Technically Acceptable (LPTA)", "Tradeoff", "Other"]
+    )
+
+    pricing_scenario = st.selectbox(
+        "Pricing Scenario",
+        ["New Requirement", "Incumbent Contractor", "Follow-on / Recompete", "Bridge / Extension", "Other"]
+    )
+
+    job_description_intensity = st.selectbox(
+        "Job Description Intensity",
+        ["Low", "Medium", "High", "Unknown"]
+    )
+
+    st.success("Contracting context loaded successfully.")
+
+# IMPORTANT: Add this call to render the page when loaded directly
+render_ptw_calculator()
