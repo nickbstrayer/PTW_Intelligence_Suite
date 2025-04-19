@@ -1,75 +1,76 @@
-import requests
-import os
+import streamlit as st
+from scripts.api_connectors import fetch_sam_details
 
-# You can hardcode keys for now or pull them from environment variables
-SAM_API_KEY = "f2gGlBlN4L8Q9HzeXyHHTvvNwkvz3m7OIxhFMDhu"
-DATA_GOV_KEY = "MTcYHhfTdFCtXwczxk3gEnS4tpuvumTbfxNtsf5I"
+def render_ptw_calculator():
+    st.set_page_config(page_title="PTW Calculator – Full", layout="wide")
 
-def fetch_sam_details(solicitation_number):
-    url = f"https://api.sam.gov/opportunities/v2/search"
-    params = {
-        "api_key": SAM_API_KEY,
-        "q": solicitation_number,
-        "limit": 1
-    }
-    try:
-        response = requests.get(url, params=params)
-        response.raise_for_status()
-        results = response.json()
+    st.markdown("""
+        <h1 style='display: flex; align-items: center;'>
+            <span style='font-size: 32px; margin-right: 10px;'>🔢</span> Full PTW Calculator
+        </h1>
+    """, unsafe_allow_html=True)
 
-        if results.get("opportunities"):
-            print(f"SAM.gov: Found results for solicitation '{solicitation_number}'")
-            opp = results["opportunities"][0]
-            return {
-                "agency_name": opp.get("contractingOfficeName", ""),
-                "title": opp.get("title", ""),
-                "published_date": opp.get("datePosted", ""),
-                "due_date": opp.get("responseDeadLine", ""),
-                "competition": opp.get("typeOfSetAsideDescription", ""),
-                "estimated_value": opp.get("awardAmount", 0.0),
-                "set_aside": opp.get("typeOfSetAsideDescription", ""),
-                "psc": opp.get("productOrServiceCode", ""),
-                "naics": opp.get("naicsCode", ""),
-                "pop": opp.get("placeOfPerformance", {}).get("location", {}).get("country", ""),
-                "description": opp.get("description", "")
-            }
+    st.markdown("---")
+
+    # --- Form Section 1: Agency and Contract Info ---
+    st.subheader("Agency and Contract Info")
+
+    with st.form("sam_lookup"):
+        solicitation_number = st.text_input("Solicitation Number", key="sam_lookup_input")
+        fetch_button = st.form_submit_button("🔍 Pull from SAM.gov")
+
+    agency_name = ""
+    contract_title = ""
+    published_date = ""
+    due_date = ""
+    competition = ""
+    estimated_value = 0.0
+    set_aside = ""
+    psc = ""
+    naics = ""
+    pop = ""
+    description = ""
+
+    if fetch_button and solicitation_number:
+        sam_data = fetch_sam_details(solicitation_number)
+
+        if sam_data and any(sam_data.values()):
+            st.success(f"✅ Found solicitation '{solicitation_number}' in SAM.gov")
+            agency_name = sam_data.get("agency_name", "")
+            contract_title = sam_data.get("title", "")
+            published_date = sam_data.get("published_date", "")
+            due_date = sam_data.get("due_date", "")
+            competition = sam_data.get("competition", "")
+            estimated_value = sam_data.get("estimated_value", 0.0)
+            set_aside = sam_data.get("set_aside", "")
+            psc = sam_data.get("psc", "")
+            naics = sam_data.get("naics", "")
+            pop = sam_data.get("pop", "")
+            description = sam_data.get("description", "")
         else:
-            print(f"SAM.gov: No results found for solicitation '{solicitation_number}'")
-    except Exception as e:
-        print(f"SAM.gov fetch error: {e}")
-    return {
-        "agency_name": "",
-        "title": "",
-        "published_date": "",
-        "due_date": "",
-        "competition": "",
-        "estimated_value": 0.0,
-        "set_aside": "",
-        "psc": "",
-        "naics": "",
-        "pop": "",
-        "description": ""
-    }
+            st.error(f"❌ No results found for solicitation '{solicitation_number}'")
 
-def fetch_contract_history(duns_or_uei):
-    url = "https://api.usaspending.gov/api/v2/search/spending_by_award/"
-    headers = {"Content-Type": "application/json"}
-    payload = {
-        "filters": {
-            "recipient_search_text": [duns_or_uei]
-        },
-        "fields": ["Award Amount", "Recipient Name", "Award ID", "Action Date"],
-        "limit": 1
-    }
-    try:
-        response = requests.post(url, headers=headers, json=payload)
-        response.raise_for_status()
-        data = response.json()
-        if data.get("results"):
-            contract = data["results"][0]
-            return {
-                "historical_value": contract.get("Award Amount", 0.0)
-            }
-    except Exception as e:
-        print(f"Data.gov fetch error: {e}")
-    return {"historical_value": 0.0}
+    agency_name = st.text_input("Agency Name or Sub-agency", value=agency_name, key="agency_input")
+    contract_title = st.text_input("Contract Title", value=contract_title, key="title_input")
+    st.text_input("Solicitation Number", value=solicitation_number, key="sol_number_final")
+    st.text_input("Published Date", value=published_date, key="published_input")
+    st.text_input("Due Date", value=due_date, key="due_input")
+    st.text_input("Competition Type", value=competition, key="competition_input")
+    contract_value = st.number_input("Contract Estimated Value ($)", value=estimated_value, min_value=0.0, format="%.2f")
+    st.text_input("Set-Aside Type", value=set_aside, key="setaside_input")
+    st.text_input("Product Service Code (PSC)", value=psc, key="psc_input")
+    st.text_input("NAICS Code", value=naics, key="naics_input")
+    st.text_input("Place of Performance", value=pop, key="pop_input")
+    st.text_area("Description", value=description, key="description_input")
+
+    st.markdown("### 📌 Labor Info")
+    labor_category = st.selectbox("Labor Category", ["Program Manager", "Analyst", "Engineer", "Administrator", "Other"])
+    base_salary = st.number_input("Base Salary Estimate ($)", min_value=0.0, format="%.2f")
+    bill_low = st.number_input("Bill Rate – Low ($)", min_value=0.0, format="%.2f")
+    bill_mid = st.number_input("Bill Rate – Mid ($)", min_value=0.0, format="%.2f")
+    bill_high = st.number_input("Bill Rate – High ($)", min_value=0.0, format="%.2f")
+
+    st.success("Section loaded successfully – more sections will appear as we continue integration.")
+
+# IMPORTANT: Add this call to render the page when loaded directly
+render_ptw_calculator()
