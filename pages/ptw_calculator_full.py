@@ -19,6 +19,18 @@ def render_ptw_calculator():
         solicitation_number = st.text_input("Solicitation Number", key="sam_lookup_input")
         fetch_button = st.form_submit_button("🔍 Pull from SAM.gov")
 
+    agency_name = ""
+    contract_title = ""
+    published_date = ""
+    due_date = ""
+    competition = ""
+    estimated_value = 0.0
+    set_aside = ""
+    psc = ""
+    naics = ""
+    pop = ""
+    description = ""
+
     if fetch_button and solicitation_number:
         sam_data = fetch_sam_details(solicitation_number)
         agency_name = sam_data.get("agency_name", "")
@@ -32,18 +44,6 @@ def render_ptw_calculator():
         naics = sam_data.get("naics", "")
         pop = sam_data.get("pop", "")
         description = sam_data.get("description", "")
-    else:
-        agency_name = ""
-        contract_title = ""
-        published_date = ""
-        due_date = ""
-        competition = ""
-        estimated_value = 0.0
-        set_aside = ""
-        psc = ""
-        naics = ""
-        pop = ""
-        description = ""
 
     agency_name = st.text_input("Agency Name or Sub-agency", value=agency_name, key="agency_input")
     contract_title = st.text_input("Contract Title", value=contract_title, key="title_input")
