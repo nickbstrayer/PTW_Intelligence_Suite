@@ -15,6 +15,9 @@ def render_ptw_calculator():
     # --- Form Section 1: Agency and Contract Info ---
     st.subheader("Agency and Contract Info")
 
+    # Safe default if form is not submitted
+    solicitation_number = ""
+
     with st.form("sam_lookup"):
         solicitation_number = st.text_input("Solicitation Number", key="sam_lookup_input")
         fetch_button = st.form_submit_button("🔍 Pull from SAM.gov")
@@ -36,6 +39,7 @@ def render_ptw_calculator():
         ["Full & Open", "Small Business Set Aside", "SDVOSB", "WOSB", "HubZone", "ANC", "Other"]
     )
 
+    # --- Form Section 2: Labor Info ---
     st.markdown("### 📌 Labor Info")
     labor_category = st.selectbox("Labor Category", ["Program Manager", "Analyst", "Engineer", "Administrator", "Other"])
     base_salary = st.number_input("Base Salary Estimate ($)", min_value=0.0, format="%.2f")
@@ -43,7 +47,8 @@ def render_ptw_calculator():
     bill_mid = st.number_input("Bill Rate – Mid ($)", min_value=0.0, format="%.2f")
     bill_high = st.number_input("Bill Rate – High ($)", min_value=0.0, format="%.2f")
 
+    # Placeholder for next sections
     st.success("Section loaded successfully – more sections will appear as we continue integration.")
 
-# IMPORTANT: Add this call to render the page when loaded directly
+# 🔁 Trigger the render function on load
 render_ptw_calculator()
