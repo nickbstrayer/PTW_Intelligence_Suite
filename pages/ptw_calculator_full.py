@@ -11,7 +11,7 @@ st.markdown("""
 
 st.markdown("---")
 
-# --- Section 1: Agency and Contract Info ---
+# --- Form Section 1: Agency and Contract Info ---
 st.subheader("Agency and Contract Info")
 
 with st.form("sam_lookup"):
@@ -31,25 +31,26 @@ contract_title = st.text_input("Contract Title", value=contract_title, key="titl
 st.text_input("Solicitation Number", value=solicitation_number, key="sol_number_final")
 contract_value = st.number_input("Contract Estimated Value ($)", min_value=0.0, format="%.2f")
 
-# ✅ Updated with Small Business Set Aside option
+# ✅ UPDATED CONTRACT TYPE DROPDOWN
 contract_type = st.selectbox(
-    "Contract Type", 
-    ["Full & Open", "Small Business Set Aside", "SDVOSB", "WOSB", "HubZone", "ANC", "Other"]
+    "Contract Type",
+    [
+        "Full & Open",
+        "SDVOSB",
+        "WOSB",
+        "HubZone",
+        "ANC",
+        "Small Business Set Aside",  # ✅ newly added option
+        "Other"
+    ]
 )
 
-# --- Section 2: Labor Info ---
+# --- Form Section 2: Labor Info ---
 st.subheader("Labor Info")
-
-labor_category = st.selectbox("Labor Category", [
-    "Program Manager", "Analyst", "Engineer", "Administrator", "Technician", "Other"
-])
+labor_category = st.selectbox("Labor Category", ["Program Manager", "Analyst", "Engineer", "Administrator", "Other"])
 base_salary = st.number_input("Base Salary Estimate ($)", min_value=0.0, format="%.2f")
 bill_low = st.number_input("Bill Rate – Low ($)", min_value=0.0, format="%.2f")
 bill_mid = st.number_input("Bill Rate – Mid ($)", min_value=0.0, format="%.2f")
 bill_high = st.number_input("Bill Rate – High ($)", min_value=0.0, format="%.2f")
 
-# --- Section 3: Contracting Context ---
-st.subheader("Contracting Context")
-
-eval_category = st.selectbox("Evaluation Category", ["Best Value", "LPTA", "Undefined"])
-pricing_scenario = st.selectbox("Pricing Scenario", ["New Requirement", "Recompete"])
+# ✅ You can continue with Contracting Context, Modifiers, Benchmarking, etc.
