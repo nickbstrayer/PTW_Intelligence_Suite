@@ -11,7 +11,7 @@ st.markdown("""
 
 st.markdown("---")
 
-# --- Form Section 1: Agency and Contract Info ---
+# --- Section 1: Agency and Contract Info ---
 st.subheader("Agency and Contract Info")
 
 with st.form("sam_lookup"):
@@ -32,14 +32,19 @@ st.text_input("Solicitation Number", value=solicitation_number, key="sol_number_
 contract_value = st.number_input("Contract Estimated Value ($)", min_value=0.0, format="%.2f")
 contract_type = st.selectbox("Contract Type", ["Full & Open", "SDVOSB", "WOSB", "HubZone", "ANC", "Other"])
 
-# --- Form Section 2: Labor Info ---
+# --- Section 2: Labor Info ---
 st.subheader("Labor Info")
-labor_category = st.selectbox("Labor Category", ["Program Manager", "Analyst", "Engineer", "Administrator", "Other"])
+
+labor_category = st.selectbox("Labor Category", [
+    "Program Manager", "Analyst", "Engineer", "Administrator", "Technician", "Other"
+])
 base_salary = st.number_input("Base Salary Estimate ($)", min_value=0.0, format="%.2f")
 bill_low = st.number_input("Bill Rate – Low ($)", min_value=0.0, format="%.2f")
 bill_mid = st.number_input("Bill Rate – Mid ($)", min_value=0.0, format="%.2f")
 bill_high = st.number_input("Bill Rate – High ($)", min_value=0.0, format="%.2f")
 
-# (Continue to add additional sections below)
+# --- Section 3: Contracting Context ---
+st.subheader("Contracting Context")
 
-# You can add st.button("Submit") or more advanced logic later
+eval_category = st.selectbox("Evaluation Category", ["Best Value", "LPTA", "Undefined"])
+pricing_scenario = st.selectbox("Pricing Scenario", ["New Requirement", "Recompete"])
