@@ -1,7 +1,8 @@
+import streamlit as st
 import requests
 
-# Replace with your actual key or use environment variable
-SAM_API_KEY = "your_sam_api_key_here"
+# Load API key securely from Streamlit Secrets
+SAM_API_KEY = st.secrets["f2gGlBlN4L8Q9HzeXyHHTvvNwkvz3m7OIxhFMDhu"]
 
 def fetch_sam_details(solicitation_number):
     url = "https://api.sam.gov/prod/opportunities/v2/search"
@@ -36,6 +37,11 @@ def fetch_sam_details(solicitation_number):
             "description": opp.get("description", "")
         }
 
+    except requests.exceptions.HTTPError as http_err:
+        st.error(f"HTTP error occurred: {http_err}")
+    except requests.exceptions.RequestException as req_err:
+        st.error(f"Request error occurred: {req_err}")
     except Exception as e:
-        print(f"Error fetching from SAM.gov: {e}")
-        return {}
+        st.error(f"Unexpected error fetching from SAM.gov: {e}")
+
+    return {}
