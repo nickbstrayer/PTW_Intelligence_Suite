@@ -2,7 +2,7 @@ import streamlit as st
 import requests
 
 # Load API key securely from Streamlit Secrets
-SAM_API_KEY = st.secrets["f2gGlBlN4L8Q9HzeXyHHTvvNwkvz3m7OIxhFMDhu"]
+SAM_API_KEY = st.secrets["PDr3VbBFgP9Prdw9l6hWrkqF479qHY3ZLdlah4km"]
 
 def fetch_sam_details(solicitation_number):
     url = "https://api.sam.gov/prod/opportunities/v2/search"
